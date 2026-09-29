@@ -32,3 +32,30 @@ export async function getCurrentWeather(city, units = 'metric') {
   const data = await response.json();
   return data;
 }
+
+/**
+ * Dohvaća trenutno vrijeme prema koordinatama.
+ * @param {number} lat - geografska širina
+ * @param {number} lon - geografska dužina
+ * @param {string} units - "metric" ili "imperial"
+ * @returns {Promise<Object>} - podaci o vremenu
+ */
+export async function getWeatherByCoords(lat, lon, units = 'metric') {
+  if (!API_KEY) {
+    throw new Error('API ključ nije postavljen. Provjeri .env datoteku.');
+  }
+
+  const url = `${BASE_URL}/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}&lang=hr`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Neispravan API ključ.');
+    }
+    throw new Error(`Greška pri dohvaćanju podataka (${response.status}).`);
+  }
+
+  const data = await response.json();
+  return data;
+}

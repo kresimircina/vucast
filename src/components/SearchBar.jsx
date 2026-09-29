@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 
-function SearchBar({ onSearch }) {
+function SearchBar({ onSearch, onGeolocate }) {
   const [city, setCity] = useState('');
 
   const isEmpty = city.trim() === '';
@@ -29,6 +29,14 @@ function SearchBar({ onSearch }) {
         className="px-6 py-2 rounded-lg bg-white/30 backdrop-blur-md text-white font-semibold hover:bg-white/40 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white/30"
       >
         Traži
+      </button>
+      <button
+        type="button"
+        onClick={onGeolocate}
+        title="Koristi moju lokaciju"
+        className="px-3 py-2 rounded-lg bg-white/30 backdrop-blur-md text-white text-xl hover:bg-white/40 transition"
+      >
+        📍
       </button>
     </form>
   );

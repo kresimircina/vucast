@@ -1,11 +1,13 @@
 // WeatherDetails.jsx
-// Grid s dodatnim podacima o vremenu (vjetar, vlažnost, tlak, vidljivost)
+// Grid s dodatnim podacima o vremenu
 
-function WeatherDetails({ weather }) {
+function WeatherDetails({ weather, units }) {
+  const windUnit = units === 'metric' ? 'm/s' : 'mph';
+
   const details = [
     {
       label: 'Vjetar',
-      value: `${weather.wind.speed.toFixed(1)} m/s`,
+      value: `${weather.wind.speed.toFixed(1)} ${windUnit}`,
       icon: '💨',
     },
     {

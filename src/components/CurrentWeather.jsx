@@ -1,8 +1,9 @@
 // CurrentWeather.jsx
 // Prikaz trenutnog vremena — glavna kartica
 
-function CurrentWeather({ weather }) {
+function CurrentWeather({ weather, units }) {
   const iconUrl = `https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`;
+  const tempSymbol = units === 'metric' ? '°C' : '°F';
 
   return (
     <div className="bg-white/20 backdrop-blur-md p-6 rounded-lg text-white text-center w-full max-w-md">
@@ -17,7 +18,7 @@ function CurrentWeather({ weather }) {
       />
 
       <p className="text-6xl font-bold">
-        {Math.round(weather.main.temp)}°C
+        {Math.round(weather.main.temp)}{tempSymbol}
       </p>
 
       <p className="text-lg capitalize mt-2">
@@ -25,7 +26,7 @@ function CurrentWeather({ weather }) {
       </p>
 
       <p className="text-sm mt-2 opacity-80">
-        Osjeća se kao {Math.round(weather.main.feels_like)}°C
+        Osjeća se kao {Math.round(weather.main.feels_like)}{tempSymbol}
       </p>
     </div>
   );

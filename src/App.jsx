@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import { getCurrentWeather } from './services/weatherApi';
+import { getCurrentWeather, getWeatherByCoords } from './services/weatherApi';
 import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
 import WeatherDetails from './components/WeatherDetails';
+import UnitToggle from './components/UnitToggle';
 
 function App() {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [units, setUnits] = useState('metric');
+  const [lastQuery, setLastQuery] = useState(null);
 
-  const handleSearch = async (city) => {
+  const fetchByCity = async (city, unitsToUse) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getCurrentWeather(city);
+      const data = await getCurrentWeather(city, unitsToUse);
       setWeather(data);
+      setLastQuery({ type: 'city', value: city });
     } catch (err) {
       setError(err.message);
       setWeather(null);
@@ -24,11 +28,72 @@ function App() {
     }
   };
 
+  const fetchByCoords = async (lat, lon, unitsToUse) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getWeatherByCoords(lat, lon, unitsToUse);
+      setWeather(data);
+      setLastQuery({ type: 'coords', value: { lat, lon } });
+    } catch (err) {
+      setError(err.message);
+      setWeather(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (city) => {
+    fetchByCity(city, units);
+  };
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) {
+      setError('Tvoj browser ne podržava geolokaciju.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchByCoords(latitude, longitude, units);
+      },
+      (err) => {
+        setLoading(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setError('Odbijen pristup lokaciji. Dozvoli u postavkama browsera.');
+        } else {
+          setError('Nije moguće dohvatiti lokaciju.');
+        }
+      }
+    );
+  };
+
+  const handleUnitToggle = (newUnits) => {
+    if (newUnits === units) return;
+    setUnits(newUnits);
+
+    if (!lastQuery) return;
+
+    if (lastQuery.type === 'city') {
+      fetchByCity(lastQuery.value, newUnits);
+    } else {
+      fetchByCoords(lastQuery.value.lat, lastQuery.value.lon, newUnits);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 to-blue-700 flex flex-col items-center p-8 gap-6">
-      <h1 className="text-4xl font-bold text-white">VuCast</h1>
+      <div className="flex items-center justify-between w-full max-w-md">
+        <h1 className="text-4xl font-bold text-white">VuCast</h1>
+        <UnitToggle units={units} onToggle={handleUnitToggle} />
+      </div>
 
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onSearch={handleSearch} onGeolocate={handleGeolocate} />
 
       {loading && (
         <p className="text-white text-lg">Učitavam...</p>
@@ -40,8 +105,8 @@ function App() {
 
       {weather && !loading && (
         <>
-          <CurrentWeather weather={weather} />
-          <WeatherDetails weather={weather} />
+          <CurrentWeather weather={weather} units={units} />
+          <WeatherDetails weather={weather} units={units} />
         </>
       )}
     </div>
