@@ -11,6 +11,7 @@ import WeatherDetails from './components/WeatherDetails';
 import UnitToggle from './components/UnitToggle';
 import Forecast from './components/Forecast';
 import { getBackgroundClass } from './utils/getBackgroundClass';
+import LoadingSpinner from './components/LoadingSpinner';
 
 function App() {
   const [weather, setWeather] = useState(null);
@@ -113,9 +114,7 @@ function App() {
 
       <SearchBar onSearch={handleSearch} onGeolocate={handleGeolocate} />
 
-      {loading && (
-        <p className="text-white text-lg">Učitavam...</p>
-      )}
+      {loading && <LoadingSpinner />}
 
       {error && (
         <p className="text-red-200 text-lg">❌ {error}</p>
@@ -128,6 +127,14 @@ function App() {
           <Forecast forecastList={forecast} units={units} />
         </>
       )}
+      {!weather && !loading && !error && (
+      <div className="text-center mt-8">
+        <p className="text-6xl mb-4">🌤️</p>
+        <p className="text-white text-lg opacity-90">
+           Pretraži grad ili koristi svoju lokaciju
+        </p>
+      </div>
+)}
     </div>
   );
 }
