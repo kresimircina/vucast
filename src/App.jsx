@@ -10,6 +10,7 @@ import CurrentWeather from './components/CurrentWeather';
 import WeatherDetails from './components/WeatherDetails';
 import UnitToggle from './components/UnitToggle';
 import Forecast from './components/Forecast';
+import { getBackgroundClass } from './utils/getBackgroundClass';
 
 function App() {
   const [weather, setWeather] = useState(null);
@@ -104,7 +105,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 to-blue-700 flex flex-col items-center p-8 gap-6">
+    <div className={`min-h-screen flex flex-col items-center p-8 gap-6 transition-all duration-1000 ${getBackgroundClass(weather)}`}>
       <div className="flex items-center justify-between w-full max-w-md">
         <h1 className="text-4xl font-bold text-white">VuCast</h1>
         <UnitToggle units={units} onToggle={handleUnitToggle} />
