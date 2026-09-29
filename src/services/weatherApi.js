@@ -59,3 +59,53 @@ export async function getWeatherByCoords(lat, lon, units = 'metric') {
   const data = await response.json();
   return data;
 }
+
+/**
+ * Dohvaća 5-dnevnu prognozu za zadani grad.
+ * @param {string} city - naziv grada
+ * @param {string} units - "metric" ili "imperial"
+ * @returns {Promise<Array>} - array od 5 dnevnih sažetaka
+ */
+export async function getForecast(city, units = 'metric') {
+  if (!API_KEY) {
+    throw new Error('API ključ nije postavljen. Provjeri .env datoteku.');
+  }
+
+  const url = `${BASE_URL}/forecast?q=${encodeURIComponent(city)}&units=${units}&appid=${API_KEY}&lang=hr`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Grad "${city}" nije pronađen.`);
+    }
+    throw new Error(`Greška pri dohvaćanju prognoze (${response.status}).`);
+  }
+
+  const data = await response.json();
+  return data.list;
+}
+
+/**
+ * Dohvaća 5-dnevnu prognozu prema koordinatama.
+ * @param {number} lat
+ * @param {number} lon
+ * @param {string} units
+ * @returns {Promise<Array>}
+ */
+export async function getForecastByCoords(lat, lon, units = 'metric') {
+  if (!API_KEY) {
+    throw new Error('API ključ nije postavljen. Provjeri .env datoteku.');
+  }
+
+  const url = `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}&lang=hr`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Greška pri dohvaćanju prognoze (${response.status}).`);
+  }
+
+  const data = await response.json();
+  return data.list;
+}

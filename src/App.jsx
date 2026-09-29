@@ -1,12 +1,19 @@
 import { useState } from 'react';
-import { getCurrentWeather, getWeatherByCoords } from './services/weatherApi';
+import {
+  getCurrentWeather,
+  getWeatherByCoords,
+  getForecast,
+  getForecastByCoords,
+} from './services/weatherApi';
 import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
 import WeatherDetails from './components/WeatherDetails';
 import UnitToggle from './components/UnitToggle';
+import Forecast from './components/Forecast';
 
 function App() {
   const [weather, setWeather] = useState(null);
+  const [forecast, setForecast] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [units, setUnits] = useState('metric');
@@ -17,12 +24,17 @@ function App() {
     setError(null);
 
     try {
-      const data = await getCurrentWeather(city, unitsToUse);
-      setWeather(data);
+      const [weatherData, forecastData] = await Promise.all([
+        getCurrentWeather(city, unitsToUse),
+        getForecast(city, unitsToUse),
+      ]);
+      setWeather(weatherData);
+      setForecast(forecastData);
       setLastQuery({ type: 'city', value: city });
     } catch (err) {
       setError(err.message);
       setWeather(null);
+      setForecast(null);
     } finally {
       setLoading(false);
     }
@@ -33,12 +45,17 @@ function App() {
     setError(null);
 
     try {
-      const data = await getWeatherByCoords(lat, lon, unitsToUse);
-      setWeather(data);
+      const [weatherData, forecastData] = await Promise.all([
+        getWeatherByCoords(lat, lon, unitsToUse),
+        getForecastByCoords(lat, lon, unitsToUse),
+      ]);
+      setWeather(weatherData);
+      setForecast(forecastData);
       setLastQuery({ type: 'coords', value: { lat, lon } });
     } catch (err) {
       setError(err.message);
       setWeather(null);
+      setForecast(null);
     } finally {
       setLoading(false);
     }
@@ -103,10 +120,11 @@ function App() {
         <p className="text-red-200 text-lg">❌ {error}</p>
       )}
 
-      {weather && !loading && (
+      {weather && forecast && !loading && (
         <>
           <CurrentWeather weather={weather} units={units} />
           <WeatherDetails weather={weather} units={units} />
+          <Forecast forecastList={forecast} units={units} />
         </>
       )}
     </div>
